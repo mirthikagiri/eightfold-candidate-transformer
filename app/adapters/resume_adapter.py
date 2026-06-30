@@ -4,9 +4,10 @@ from typing import Any, Dict, List, Optional
 import fitz
 
 from app.adapters.base import BaseAdapter
-from app.normalizers.email import normalize_email
+from app.normalizers.email import normalize_email_with_report
 from app.normalizers.location import normalize_location
-from app.normalizers.phone import normalize_phone
+from app.normalizers.phone import normalize_phone_with_report
+from app.normalizers.result import NormalizationReport
 
 
 class ResumeAdapter(BaseAdapter):
@@ -14,8 +15,10 @@ class ResumeAdapter(BaseAdapter):
     Extract candidate information from resume PDF.
     """
 
+    SOURCE = "resume_pdf"
+
     EMAIL_PATTERN = r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"
-    PHONE_PATTERN = r"(?:\+91[- ]?)?[6-9]\d{9}"
+    PHONE_PATTERN = r"(?:\+91[- ]?)?[6-9]\d{9}|(?:\+91[- ]?)?\(?91\)?[- ]?[6-9]\d{9}"
     LINK_PATTERN = r"https?://[^\s)>]+"
     LOCATION_PATTERN = r"\b([A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)?),\s*(India|IN|USA|US|UK)\b"
     YEARS_PATTERN = r"(\d+(?:\.\d+)?)\+?\s*(?:years|yrs)\s+(?:of\s+)?experience"
@@ -33,15 +36,20 @@ class ResumeAdapter(BaseAdapter):
     )
 
     def extract(self, source_path: str) -> Dict[str, Any]:
+        report = NormalizationReport()
         try:
             text = self._extract_text(source_path)
             if not text.strip():
-                return {"source": "resume_pdf", "_uncertain_fields": ["full_name"]}
+                return {
+                    "source": self.SOURCE,
+                    "_uncertain_fields": ["full_name"],
+                    "_normalization_report": report.to_list(),
+                }
 
             uncertain_fields: List[str] = []
 
-            emails = self._extract_emails(text)
-            phones = self._extract_phones(text, uncertain_fields)
+            emails = self._extract_emails(text, report)
+            phones = self._extract_phones(text, uncertain_fields, report)
             name = self._extract_name(text)
             if not name:
                 uncertain_fields.append("full_name")
@@ -65,27 +73,44 @@ class ResumeAdapter(BaseAdapter):
                 "experience": experience,
                 "education": education,
                 "headline": headline,
-                "source": "resume_pdf",
+                "source": self.SOURCE,
                 "_uncertain_fields": sorted(set(uncertain_fields)),
+                "_normalization_report": report.to_list(),
             }
 
         except Exception as e:
             print(f"[ResumeAdapter] Error: {e}")
-            return {"source": "resume_pdf", "_uncertain_fields": ["full_name"]}
+            return {
+                "source": self.SOURCE,
+                "_uncertain_fields": ["full_name"],
+                "_normalization_report": report.to_list(),
+            }
 
     def _extract_text(self, pdf_path: str) -> str:
-        doc = fitz.open(pdf_path)
-        text = ""
-        for page in doc:
-            text += page.get_text()
-        doc.close()
-        return text
+        try:
+            doc = fitz.open(pdf_path)
+            text = ""
+            for page in doc:
+                text += page.get_text()
+            doc.close()
+            return text
+        except Exception:
+            return ""
 
-    def _extract_emails(self, text: str) -> List[str]:
+    def _extract_emails(
+        self,
+        text: str,
+        report: NormalizationReport,
+    ) -> List[str]:
         emails = re.findall(self.EMAIL_PATTERN, text)
         normalized = []
         for email in emails:
-            value = normalize_email(email)
+            value, entry = normalize_email_with_report(
+                email,
+                source=self.SOURCE,
+                field="email",
+            )
+            report.add(entry)
             if value:
                 normalized.append(value)
         return sorted(set(normalized))
@@ -94,11 +119,17 @@ class ResumeAdapter(BaseAdapter):
         self,
         text: str,
         uncertain_fields: List[str],
+        report: NormalizationReport,
     ) -> List[str]:
         phones = re.findall(self.PHONE_PATTERN, text)
         normalized = []
         for phone in phones:
-            value = normalize_phone(phone.strip())
+            value, entry = normalize_phone_with_report(
+                phone.strip(),
+                source=self.SOURCE,
+                field="phone",
+            )
+            report.add(entry)
             if value:
                 normalized.append(value)
             else:

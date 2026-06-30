@@ -9,7 +9,6 @@ class Location(BaseModel):
 
 
 class FieldProvenance(BaseModel):
-    value: Any = None
     sources: List[str] = Field(default_factory=list)
     method: str = "extraction"
     resolution_policy: Optional[str] = None
@@ -17,9 +16,9 @@ class FieldProvenance(BaseModel):
 
 class ConflictEntry(BaseModel):
     field: str
-    candidates: List[Any]
-    selected: Any
-    reason: str
+    values: List[Dict[str, Any]] = Field(default_factory=list)
+    selected: Any = None
+    reason: str = "unknown"
 
 
 class QualityReportData(BaseModel):
@@ -29,6 +28,7 @@ class QualityReportData(BaseModel):
     trust_score: int = 0
     missing_fields: List[str] = Field(default_factory=list)
     conflicts_detected: int = 0
+    normalization_failures: int = 0
     source_count: int = 0
 
 

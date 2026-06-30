@@ -9,14 +9,14 @@ def test_provenance_merged_sources():
         "_merge_decisions": {
             "emails": {
                 "sources": ["recruiter_csv", "resume_pdf"],
-                "policy": "union_dedupe",
+                "resolution_policy": "union_dedupe",
             }
         },
     }
 
     provenance = ProvenanceTracker().build(csv_data, resume_data, canonical)
 
-    assert provenance["emails"]["method"] == "merged"
+    assert provenance["emails"]["method"] == "merge"
     assert set(provenance["emails"]["sources"]) == {
         "recruiter_csv",
         "resume_pdf",

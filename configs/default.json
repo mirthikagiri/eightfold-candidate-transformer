@@ -29,5 +29,7 @@
   "include_confidence": true,
   "include_quality": true,
   "include_audit": true,
+  "include_conflicts": true,
+  "include_normalization_report": true,
   "on_missing": "null"
 }

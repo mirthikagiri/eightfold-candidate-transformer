@@ -30,3 +30,33 @@ def test_duplicate_emails_deduplicated():
 
     merged = MergeEngine().merge(csv_data, resume_data)
     assert merged["emails"] == ["john@gmail.com"]
+
+
+def test_invalid_email_not_included():
+    csv_data = {"emails": ["bad-email"]}
+    resume_data = {"emails": ["john@gmail.com"]}
+
+    merged = MergeEngine().merge(csv_data, resume_data)
+    assert merged["emails"] == ["john@gmail.com"]
+
+
+def test_csv_invalid_phone_records_normalization_failure():
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.NamedTemporaryFile(suffix=".csv", delete=False, mode="w") as f:
+        f.write("name,email,phone,current_company,title\n")
+        f.write("Jane Doe,jane@gmail.com,91xx87625h,Acme,Engineer\n")
+        path = f.name
+
+    result = CSVAdapter().extract(path)
+    invalid_entries = [
+        entry
+        for entry in result["_normalization_report"]
+        if entry.get("status") == "invalid"
+    ]
+
+    assert result["phones"] == []
+    assert len(invalid_entries) == 1
+    assert invalid_entries[0]["reason"] == "invalid_phone_format"
+    Path(path).unlink(missing_ok=True)

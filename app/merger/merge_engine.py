@@ -1,8 +1,9 @@
 from typing import Any, Dict, List, Optional, Tuple
 
-from app.normalizers.email import normalize_email
+from app.merger.conflict_resolver import ConflictResolver
+from app.normalizers.email import normalize_email_detailed
 from app.normalizers.location import location_to_string, normalize_location
-from app.normalizers.phone import normalize_phone
+from app.normalizers.phone import normalize_phone_detailed
 from app.normalizers.skills import normalize_skills
 
 
@@ -15,6 +16,9 @@ class MergeEngine:
     RESUME_SOURCE = "resume_pdf"
     CSV_SOURCE = "recruiter_csv"
 
+    def __init__(self) -> None:
+        self._conflict_resolver = ConflictResolver()
+
     def merge(
         self,
         csv_data: Dict[str, Any],
@@ -26,75 +30,55 @@ class MergeEngine:
         canonical: Dict[str, Any] = {}
 
         canonical["full_name"], decision = self._merge_scalar(
+            "full_name",
             csv_data.get("full_name"),
             resume_data.get("full_name"),
             prefer=self.RESUME_SOURCE,
-            policy="resume_priority",
+            policy=ConflictResolver.REASON_RESUME_PRIORITY,
         )
         merge_decisions["full_name"] = decision
-        self._record_scalar_conflict(
-            conflict_report, "full_name", decision
-        )
+        self._record_conflict(conflict_report, decision)
 
         canonical["headline"], decision = self._merge_scalar(
+            "headline",
             csv_data.get("headline"),
             resume_data.get("headline"),
             prefer=self.RESUME_SOURCE,
-            policy="resume_priority",
+            policy=ConflictResolver.REASON_RESUME_PRIORITY,
         )
         merge_decisions["headline"] = decision
-        self._record_scalar_conflict(
-            conflict_report, "headline", decision
-        )
+        self._record_conflict(conflict_report, decision)
 
         canonical["years_experience"], decision = self._merge_scalar(
+            "years_experience",
             csv_data.get("years_experience"),
             resume_data.get("years_experience"),
             prefer=self.RESUME_SOURCE,
-            policy="resume_priority",
+            policy=ConflictResolver.REASON_RESUME_PRIORITY,
         )
         merge_decisions["years_experience"] = decision
-        self._record_scalar_conflict(
-            conflict_report, "years_experience", decision
-        )
+        self._record_conflict(conflict_report, decision)
 
         canonical["location"], decision = self._merge_location(
             csv_data.get("location"),
             resume_data.get("location"),
         )
         merge_decisions["location"] = decision
-        self._record_scalar_conflict(
-            conflict_report,
-            "location",
-            decision,
-            compare_key="display",
-        )
+        self._record_conflict(conflict_report, decision)
 
-        canonical["emails"] = self._merge_emails(
+        canonical["emails"], decision = self._merge_emails(
             csv_data.get("emails", []),
             resume_data.get("emails", []),
         )
-        merge_decisions["emails"] = {
-            "policy": "union_dedupe",
-            "sources": self._list_sources(
-                csv_data.get("emails", []),
-                resume_data.get("emails", []),
-            ),
-            "competing_values": [],
-        }
+        merge_decisions["emails"] = decision
+        self._record_conflict(conflict_report, decision)
 
-        canonical["phones"] = self._merge_phones(
+        canonical["phones"], decision = self._merge_phones(
             csv_data.get("phones", []),
             resume_data.get("phones", []),
         )
-        merge_decisions["phones"] = {
-            "policy": "union_dedupe",
-            "sources": self._list_sources(
-                csv_data.get("phones", []),
-                resume_data.get("phones", []),
-            ),
-            "competing_values": [],
-        }
+        merge_decisions["phones"] = decision
+        self._record_conflict(conflict_report, decision)
 
         canonical["skills"] = normalize_skills(
             list(
@@ -105,12 +89,15 @@ class MergeEngine:
             )
         )
         merge_decisions["skills"] = {
-            "policy": "union_canonical",
+            "selected": canonical["skills"],
+            "selected_source": None,
+            "candidate_values": [],
+            "resolution_policy": "union_canonical",
             "sources": self._list_sources(
                 csv_data.get("skills", []),
                 resume_data.get("skills", []),
             ),
-            "competing_values": [],
+            "conflict": None,
         }
 
         canonical["links"] = self._merge_links(
@@ -118,12 +105,15 @@ class MergeEngine:
             resume_data.get("links", []),
         )
         merge_decisions["links"] = {
-            "policy": "union_dedupe",
+            "selected": canonical["links"],
+            "selected_source": None,
+            "candidate_values": [],
+            "resolution_policy": "union_dedupe",
             "sources": self._list_sources(
                 csv_data.get("links", []),
                 resume_data.get("links", []),
             ),
-            "competing_values": [],
+            "conflict": None,
         }
 
         canonical["experience"] = self._merge_unique_entries(
@@ -131,12 +121,15 @@ class MergeEngine:
             resume_data.get("experience", []),
         )
         merge_decisions["experience"] = {
-            "policy": "merge_unique",
+            "selected": canonical["experience"],
+            "selected_source": None,
+            "candidate_values": [],
+            "resolution_policy": "merge_unique",
             "sources": self._list_sources(
                 csv_data.get("experience", []),
                 resume_data.get("experience", []),
             ),
-            "competing_values": [],
+            "conflict": None,
         }
 
         canonical["education"] = self._merge_unique_entries(
@@ -144,12 +137,15 @@ class MergeEngine:
             resume_data.get("education", []),
         )
         merge_decisions["education"] = {
-            "policy": "merge_unique",
+            "selected": canonical["education"],
+            "selected_source": None,
+            "candidate_values": [],
+            "resolution_policy": "merge_unique",
             "sources": self._list_sources(
                 csv_data.get("education", []),
                 resume_data.get("education", []),
             ),
-            "competing_values": [],
+            "conflict": None,
         }
 
         active_sources = sum(
@@ -163,6 +159,7 @@ class MergeEngine:
 
     def _merge_scalar(
         self,
+        field: str,
         csv_value: Any,
         resume_value: Any,
         prefer: str,
@@ -171,37 +168,29 @@ class MergeEngine:
         csv_present = self._is_present(csv_value)
         resume_present = self._is_present(resume_value)
 
-        competing = []
-        if csv_present:
-            competing.append(csv_value)
-        if resume_present:
-            competing.append(resume_value)
+        decision = self._conflict_resolver.resolve_scalar(
+            field=field,
+            csv_value=csv_value if csv_present else None,
+            resume_value=resume_value if resume_present else None,
+            csv_source=self.CSV_SOURCE,
+            resume_source=self.RESUME_SOURCE,
+            prefer=prefer,
+            policy=policy,
+        )
 
-        if prefer == self.RESUME_SOURCE:
-            selected = resume_value if resume_present else csv_value
-            selected_source = (
-                self.RESUME_SOURCE if resume_present else self.CSV_SOURCE
-            )
-        else:
-            selected = csv_value if csv_present else resume_value
-            selected_source = (
-                self.CSV_SOURCE if csv_present else self.RESUME_SOURCE
-            )
-
-        sources = []
-        if csv_present:
-            sources.append(self.CSV_SOURCE)
-        if resume_present:
-            sources.append(self.RESUME_SOURCE)
-
-        decision = {
-            "selected": selected,
-            "selected_source": selected_source,
-            "competing_values": competing,
-            "resolution_policy": policy,
-            "sources": sources,
+        return decision["selected"], {
+            "selected": decision["selected"],
+            "selected_source": decision["selected_source"],
+            "candidate_values": decision["candidate_values"],
+            "competing_values": [
+                candidate["value"] for candidate in decision["candidate_values"]
+            ],
+            "resolution_policy": decision["resolution_policy"],
+            "sources": [
+                candidate["source"] for candidate in decision["candidate_values"]
+            ],
+            "conflict": decision["conflict"],
         }
-        return selected, decision
 
     def _merge_location(
         self,
@@ -211,69 +200,133 @@ class MergeEngine:
         csv_location = normalize_location(csv_value)
         resume_location = normalize_location(resume_value)
 
-        csv_present = csv_location is not None
-        resume_present = resume_location is not None
+        csv_display = location_to_string(csv_location) if csv_location else None
+        resume_display = (
+            location_to_string(resume_location) if resume_location else None
+        )
 
-        competing = []
-        if csv_present:
-            competing.append(location_to_string(csv_location))
-        if resume_present:
-            competing.append(location_to_string(resume_location))
+        decision = self._conflict_resolver.resolve_scalar(
+            field="location",
+            csv_value=csv_display,
+            resume_value=resume_display,
+            csv_source=self.CSV_SOURCE,
+            resume_source=self.RESUME_SOURCE,
+            prefer=self.RESUME_SOURCE,
+            policy=ConflictResolver.REASON_HIGHEST_CONFIDENCE,
+            csv_status="valid" if csv_location else "invalid",
+            resume_status="valid" if resume_location else "invalid",
+        )
 
-        if resume_present:
-            selected = resume_location
-            selected_source = self.RESUME_SOURCE
-            policy = "highest_confidence"
-        elif csv_present:
-            selected = csv_location
-            selected_source = self.CSV_SOURCE
-            policy = "highest_confidence"
-        else:
-            selected = None
-            selected_source = None
-            policy = "highest_confidence"
+        selected = resume_location if resume_location else csv_location
 
-        sources = []
-        if csv_present:
-            sources.append(self.CSV_SOURCE)
-        if resume_present:
-            sources.append(self.RESUME_SOURCE)
-
-        decision = {
+        return selected, {
             "selected": location_to_string(selected) if selected else None,
-            "selected_source": selected_source,
-            "competing_values": [value for value in competing if value],
-            "resolution_policy": policy,
-            "sources": sources,
+            "selected_source": decision["selected_source"],
+            "candidate_values": decision["candidate_values"],
+            "competing_values": [
+                candidate["value"]
+                for candidate in decision["candidate_values"]
+                if candidate.get("value")
+            ],
+            "resolution_policy": decision["resolution_policy"],
+            "sources": [
+                candidate["source"] for candidate in decision["candidate_values"]
+            ],
             "display": location_to_string(selected) if selected else None,
+            "conflict": decision["conflict"],
         }
-        return selected, decision
 
     def _merge_emails(
         self,
         csv_emails: List[str],
         resume_emails: List[str],
-    ) -> List[str]:
-        merged: Dict[str, str] = {}
-        for email in csv_emails + resume_emails:
-            normalized = normalize_email(email)
-            if normalized:
-                merged[normalized] = normalized
-        return sorted(merged.values())
+    ) -> Tuple[List[str], Dict[str, Any]]:
+        csv_items = self._email_candidates(csv_emails, self.CSV_SOURCE)
+        resume_items = self._email_candidates(resume_emails, self.RESUME_SOURCE)
+
+        decision = self._conflict_resolver.resolve_collection(
+            field="emails",
+            csv_items=csv_items,
+            resume_items=resume_items,
+            dedupe_key="value",
+            policy="union_dedupe",
+        )
+
+        return decision["selected"], {
+            "selected": decision["selected"],
+            "selected_source": decision["selected_source"],
+            "candidate_values": decision["candidate_values"],
+            "competing_values": [],
+            "resolution_policy": decision["resolution_policy"],
+            "sources": decision["sources"],
+            "conflict": decision["conflict"],
+        }
 
     def _merge_phones(
         self,
         csv_phones: List[str],
         resume_phones: List[str],
-    ) -> List[str]:
-        merged: Dict[str, str] = {}
-        for phone in csv_phones + resume_phones:
+    ) -> Tuple[List[str], Dict[str, Any]]:
+        csv_items = self._phone_candidates(csv_phones, self.CSV_SOURCE)
+        resume_items = self._phone_candidates(resume_phones, self.RESUME_SOURCE)
+
+        decision = self._conflict_resolver.resolve_collection(
+            field="phones",
+            csv_items=csv_items,
+            resume_items=resume_items,
+            dedupe_key="value",
+            policy="union_dedupe",
+        )
+
+        return decision["selected"], {
+            "selected": decision["selected"],
+            "selected_source": decision["selected_source"],
+            "candidate_values": decision["candidate_values"],
+            "competing_values": [],
+            "resolution_policy": decision["resolution_policy"],
+            "sources": decision["sources"],
+            "conflict": decision["conflict"],
+        }
+
+    def _phone_candidates(
+        self,
+        phones: List[str],
+        source: str,
+    ) -> List[Dict[str, Any]]:
+        candidates = []
+        for phone in phones:
             if not phone:
                 continue
-            normalized = normalize_phone(phone)
-            key = normalized or phone.strip()
-            merged[key] = normalized or phone.strip()
-        return sorted(merged.values())
+            normalized, status, _reason = normalize_phone_detailed(phone)
+            candidates.append(
+                {
+                    "source": source,
+                    "value": normalized,
+                    "raw_value": phone,
+                    "status": status,
+                }
+            )
+        return candidates
+
+    def _email_candidates(
+        self,
+        emails: List[str],
+        source: str,
+    ) -> List[Dict[str, Any]]:
+        candidates = []
+        for email in emails:
+            if not email:
+                continue
+            normalized, status, _reason = normalize_email_detailed(email)
+            candidates.append(
+                {
+                    "source": source,
+                    "value": normalized,
+                    "raw_value": email,
+                    "status": status,
+                }
+            )
+        return candidates
 
     def _merge_links(
         self,
@@ -303,34 +356,14 @@ class MergeEngine:
             merged.append(entry)
         return merged
 
-    def _record_scalar_conflict(
+    def _record_conflict(
         self,
         conflict_report: List[Dict[str, Any]],
-        field: str,
         decision: Dict[str, Any],
-        compare_key: str = "selected",
     ) -> None:
-        competing = decision.get("competing_values", [])
-        unique_values = []
-        for value in competing:
-            if value not in unique_values:
-                unique_values.append(value)
-
-        if len(unique_values) <= 1:
-            return
-
-        normalized = [self._normalize_compare_value(value) for value in unique_values]
-        if len(set(normalized)) == 1:
-            return
-
-        conflict_report.append(
-            {
-                "field": field,
-                "candidates": unique_values,
-                "selected": decision.get(compare_key, decision.get("selected")),
-                "reason": decision.get("resolution_policy", "unknown"),
-            }
-        )
+        conflict = decision.get("conflict")
+        if conflict:
+            conflict_report.append(conflict)
 
     def _list_sources(
         self,
@@ -345,12 +378,6 @@ class MergeEngine:
         return sources
 
     @staticmethod
-    def _normalize_compare_value(value: Any) -> str:
-        if isinstance(value, dict):
-            return str(sorted(value.items()))
-        return str(value).strip().lower()
-
-    @staticmethod
     def _is_present(value: Any) -> bool:
         if value is None:
             return False
@@ -363,7 +390,7 @@ class MergeEngine:
         if not source:
             return False
         for key, value in source.items():
-            if key in {"source", "_uncertain_fields"}:
+            if key in {"source", "_uncertain_fields", "_normalization_report"}:
                 continue
             if MergeEngine._is_present(value):
                 return True

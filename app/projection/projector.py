@@ -91,4 +91,10 @@ class ProjectionEngine:
         if plan.include_audit and "_audit" in canonical:
             output["_audit"] = canonical["_audit"]
 
+        if plan.include_conflicts and "conflict_report" in canonical:
+            output["_conflicts"] = canonical["conflict_report"]
+
+        if plan.include_normalization_report and "normalization_report" in canonical:
+            output["_normalization_report"] = canonical["normalization_report"]
+
         return output

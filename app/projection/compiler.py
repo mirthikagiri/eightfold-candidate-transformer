@@ -26,5 +26,10 @@ class ConfigCompiler:
             include_provenance=config.get("include_provenance", False),
             include_quality=config.get("include_quality", False),
             include_audit=config.get("include_audit", False),
+            include_conflicts=config.get("include_conflicts", False),
+            include_normalization_report=config.get(
+                "include_normalization_report",
+                False,
+            ),
             on_missing=config.get("on_missing", "null"),
         )

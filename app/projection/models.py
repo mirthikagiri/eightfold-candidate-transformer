@@ -16,5 +16,7 @@ class ProjectionPlan(BaseModel):
     include_provenance: bool = False
     include_quality: bool = False
     include_audit: bool = False
+    include_conflicts: bool = False
+    include_normalization_report: bool = False
 
     on_missing: str = "null"

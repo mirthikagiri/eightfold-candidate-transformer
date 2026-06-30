@@ -8,6 +8,7 @@ from app.merger.audit import AuditTrail
 from app.merger.identity_resolver import IdentityResolver
 from app.merger.merge_engine import MergeEngine
 from app.merger.provenance import ProvenanceTracker
+from app.normalizers.result import NormalizationReport
 from app.projection.compiler import ConfigCompiler
 from app.projection.projector import ProjectionEngine
 from app.quality.report import QualityReport
@@ -34,6 +35,13 @@ class CandidatePipeline:
         canonical = MergeEngine().merge(csv_data, resume_data)
         canonical["candidate_id"] = candidate_id
         canonical["identity"] = identity
+
+        csv_report = NormalizationReport()
+        csv_report.extend(csv_data.get("_normalization_report", []))
+        resume_report = NormalizationReport()
+        resume_report.extend(resume_data.get("_normalization_report", []))
+        normalization_report = NormalizationReport.merge(csv_report, resume_report)
+        canonical["normalization_report"] = normalization_report.to_list()
 
         provenance = ProvenanceTracker().build(
             csv_data,

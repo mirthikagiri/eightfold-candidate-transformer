@@ -3,8 +3,22 @@ from typing import Any, Dict
 
 class ProvenanceTracker:
     """
-    Build per-field provenance with value, sources, method, and resolution policy.
+    Build per-field provenance with source history, method, and resolution policy.
     """
+
+    METADATA_FIELDS = {
+        "source_count",
+        "conflict_report",
+        "_merge_decisions",
+        "provenance",
+        "confidence",
+        "overall_confidence",
+        "quality_report",
+        "_audit",
+        "candidate_id",
+        "identity",
+        "normalization_report",
+    }
 
     def build(
         self,
@@ -14,21 +28,9 @@ class ProvenanceTracker:
     ) -> Dict[str, Any]:
         provenance: Dict[str, Any] = {}
         merge_decisions = canonical.get("_merge_decisions", {})
-        metadata_fields = {
-            "source_count",
-            "conflict_report",
-            "_merge_decisions",
-            "provenance",
-            "confidence",
-            "overall_confidence",
-            "quality_report",
-            "_audit",
-            "candidate_id",
-            "identity",
-        }
 
-        for field, value in canonical.items():
-            if field in metadata_fields:
+        for field in canonical:
+            if field in self.METADATA_FIELDS:
                 continue
 
             decision = merge_decisions.get(field, {})
@@ -37,7 +39,7 @@ class ProvenanceTracker:
             )
 
             if len(sources) > 1:
-                method = "merged"
+                method = "merge"
             elif sources:
                 method = (
                     "structured_import"
@@ -48,7 +50,6 @@ class ProvenanceTracker:
                 method = "missing"
 
             provenance[field] = {
-                "value": value,
                 "sources": sources,
                 "method": method,
                 "resolution_policy": decision.get("resolution_policy"),
