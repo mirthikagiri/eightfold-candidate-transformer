@@ -1,0 +1,11 @@
+John Doe
+
+Email: john@gmail.com
+Phone: +91 9876543210
+
+Skills:
+Python
+React
+SQL
+
+Software Engineer
