@@ -1,18 +1,16 @@
-import json
+from typing import Any, Dict
 
 from app.adapters.csv_adapter import CSVAdapter
 from app.adapters.resume_adapter import ResumeAdapter
-
+from app.canonical.schema import validate_canonical
+from app.confidence.scorer import ConfidenceScorer
+from app.merger.audit import AuditTrail
+from app.merger.identity_resolver import IdentityResolver
 from app.merger.merge_engine import MergeEngine
 from app.merger.provenance import ProvenanceTracker
-
-from app.confidence.scorer import ConfidenceScorer
-
-from app.quality.report import QualityReport
-
 from app.projection.compiler import ConfigCompiler
 from app.projection.projector import ProjectionEngine
-
+from app.quality.report import QualityReport
 from app.validation.validator import ProjectionValidator
 
 
@@ -20,95 +18,56 @@ class CandidatePipeline:
 
     def run(
         self,
-        csv_path,
-        resume_path,
-        config_path
-    ):
+        csv_path: str,
+        resume_path: str,
+        config_path: str,
+    ) -> Dict[str, Any]:
+        csv_data = CSVAdapter().extract(csv_path)
+        resume_data = ResumeAdapter().extract(resume_path)
 
-        csv_data = (
-            CSVAdapter()
-            .extract(csv_path)
+        identity = IdentityResolver().resolve(csv_data, resume_data)
+        candidate_id = IdentityResolver().generate_candidate_id(
+            csv_data,
+            resume_data,
         )
 
-        resume_data = (
-            ResumeAdapter()
-            .extract(resume_path)
-        )
-        print(csv_data)
-        print(resume_data)
+        canonical = MergeEngine().merge(csv_data, resume_data)
+        canonical["candidate_id"] = candidate_id
+        canonical["identity"] = identity
 
-        canonical = (
-            MergeEngine()
-            .merge(
-                csv_data,
-                resume_data
-            )
+        provenance = ProvenanceTracker().build(
+            csv_data,
+            resume_data,
+            canonical,
         )
-        print(canonical)
-
-        provenance = (
-            ProvenanceTracker()
-            .build(
-                csv_data,
-                resume_data,
-                canonical
-            )
-        )
-
         canonical["provenance"] = provenance
 
-        confidence_scores, overall_confidence = (
-            ConfidenceScorer()
-            .score_profile(
-                canonical,
-                csv_data,
-                resume_data
-            )
+        confidence_scores, overall_confidence = ConfidenceScorer().score_profile(
+            canonical,
+            csv_data,
+            resume_data,
         )
+        canonical["confidence"] = confidence_scores
+        canonical["overall_confidence"] = overall_confidence
 
-        canonical["confidence"] = (
-            confidence_scores
-        )
+        audit = AuditTrail().generate(canonical, confidence_scores)
+        canonical["_audit"] = audit
 
-        canonical["overall_confidence"] = (
-            overall_confidence
+        quality_report = QualityReport().generate(
+            canonical,
+            confidence_scores,
         )
+        canonical["quality_report"] = quality_report
 
-        quality_report = (
-            QualityReport()
-            .generate(
-                canonical,
-                confidence_scores
-            )
-        )
+        validate_canonical(canonical)
 
-        canonical["quality_report"] = (
-            quality_report
-        )
-
-        plan = (
-            ConfigCompiler()
-            .compile(config_path)
-        )
-
-        output = (
-            ProjectionEngine()
-            .project(
-                canonical,
-                plan
-            )
-        )
-
-        errors = (
-            ProjectionValidator()
-            .validate(
-                output,
-                plan
-            )
-        )
+        plan = ConfigCompiler().compile(config_path)
+        output = ProjectionEngine().project(canonical, plan)
+        validation = ProjectionValidator().validate(output, plan)
 
         return {
             "canonical": canonical,
             "projected": output,
-            "errors": errors
+            "errors": validation["errors"],
+            "warnings": validation["warnings"],
         }

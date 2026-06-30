@@ -1,8 +1,14 @@
 {
-    "candidate_name": "Mirthika G",
-    "primary_email": "mirthika2005@gmail.com",
-    "primary_phone": null,
-    "location_city": null,
+    "full_name": "Mirthika G",
+    "headline": "Software Engineering Intern",
+    "years_experience": null,
+    "location": null,
+    "emails": [
+        "mirthika2005@gmail.com"
+    ],
+    "phones": [
+        "+91 9150XX9870"
+    ],
     "skills": [
         "aws",
         "azure",
@@ -21,19 +27,105 @@
         "python",
         "react"
     ],
-    "_confidence": {
-        "full_name": 0.95,
-        "headline": 0.8,
-        "years_experience": 0.0,
-        "location": 0.0,
-        "emails": 0.95,
-        "phones": 0.65,
-        "skills": 0.9,
-        "links": 0.0,
-        "experience": 0.0,
-        "education": 0.9
+    "links": [],
+    "experience": [],
+    "education": [
+        {
+            "institution": "Chennai Institute Of Technology, B.E Computer Science and Engineering",
+            "degree": "2023 - 2027"
+        }
+    ],
+    "source_count": 2,
+    "conflict_report": [],
+    "_merge_decisions": {
+        "full_name": {
+            "selected": "Mirthika G",
+            "selected_source": "resume_pdf",
+            "competing_values": [
+                "Mirthika G",
+                "Mirthika G"
+            ],
+            "resolution_policy": "resume_priority",
+            "sources": [
+                "recruiter_csv",
+                "resume_pdf"
+            ]
+        },
+        "headline": {
+            "selected": "Software Engineering Intern",
+            "selected_source": "recruiter_csv",
+            "competing_values": [
+                "Software Engineering Intern"
+            ],
+            "resolution_policy": "resume_priority",
+            "sources": [
+                "recruiter_csv"
+            ]
+        },
+        "years_experience": {
+            "selected": null,
+            "selected_source": "recruiter_csv",
+            "competing_values": [],
+            "resolution_policy": "resume_priority",
+            "sources": []
+        },
+        "location": {
+            "selected": null,
+            "selected_source": null,
+            "competing_values": [],
+            "resolution_policy": "highest_confidence",
+            "sources": [],
+            "display": null
+        },
+        "emails": {
+            "policy": "union_dedupe",
+            "sources": [
+                "recruiter_csv",
+                "resume_pdf"
+            ],
+            "competing_values": []
+        },
+        "phones": {
+            "policy": "union_dedupe",
+            "sources": [
+                "recruiter_csv"
+            ],
+            "competing_values": []
+        },
+        "skills": {
+            "policy": "union_canonical",
+            "sources": [
+                "resume_pdf"
+            ],
+            "competing_values": []
+        },
+        "links": {
+            "policy": "union_dedupe",
+            "sources": [],
+            "competing_values": []
+        },
+        "experience": {
+            "policy": "merge_unique",
+            "sources": [],
+            "competing_values": []
+        },
+        "education": {
+            "policy": "merge_unique",
+            "sources": [
+                "resume_pdf"
+            ],
+            "competing_values": []
+        }
     },
-    "_provenance": {
+    "candidate_id": "cand_48609c0ab64d",
+    "identity": {
+        "identity_score": 0.99,
+        "match_keys": [
+            "email",
+            "name"
+        ]
+    },
+    "provenance": {
         "full_name": {
             "value": "Mirthika G",
             "sources": [
@@ -135,20 +227,19 @@
             "resolution_policy": null
         }
     },
-    "_quality": {
-        "quality_score": 72,
-        "completeness_score": 64,
-        "consistency_score": 100,
-        "trust_score": 52,
-        "missing_fields": [
-            "location",
-            "years_experience",
-            "experience",
-            "links"
-        ],
-        "conflicts_detected": 0,
-        "source_count": 2
+    "confidence": {
+        "full_name": 0.95,
+        "headline": 0.8,
+        "years_experience": 0.0,
+        "location": 0.0,
+        "emails": 0.95,
+        "phones": 0.65,
+        "skills": 0.9,
+        "links": 0.0,
+        "experience": 0.0,
+        "education": 0.9
     },
+    "overall_confidence": 0.52,
     "_audit": {
         "full_name": {
             "selected_source": "resume_pdf",
@@ -215,5 +306,19 @@
             "resolution_policy": "merge_unique",
             "confidence": 0.9
         }
+    },
+    "quality_report": {
+        "quality_score": 72,
+        "completeness_score": 64,
+        "consistency_score": 100,
+        "trust_score": 52,
+        "missing_fields": [
+            "location",
+            "years_experience",
+            "experience",
+            "links"
+        ],
+        "conflicts_detected": 0,
+        "source_count": 2
     }
 }

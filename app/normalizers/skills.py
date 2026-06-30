@@ -5,13 +5,16 @@ SKILL_MAP = {
 
     "js": "javascript",
     "node": "nodejs",
+    "node.js": "nodejs",
 
     "reactjs": "react",
     "react.js": "react",
 
+    "express.js": "express",
+
     "postgres": "postgresql",
 
-    "mongo": "mongodb"
+    "mongo": "mongodb",
 }
 
 
