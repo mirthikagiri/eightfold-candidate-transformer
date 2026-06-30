@@ -1,0 +1,6 @@
+pydantic
+pandas
+PyMuPDF
+phonenumbers
+typer
+pytest
