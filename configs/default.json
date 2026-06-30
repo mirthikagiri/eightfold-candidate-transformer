@@ -12,11 +12,17 @@
       {
         "path": "skills",
         "from": "skills"
-      }
+      },
+      {
+        "path": "primary_phone",
+        "from": "phones[0]",
+        "normalize": "E164"
+      } 
+      
     ],
   
-    "include_provenance": false,
-    "include_confidence": false,
+    "include_provenance": true,
+    "include_confidence": true,
   
     "on_missing": "null"
   }

@@ -22,4 +22,4 @@ def test_merge():
     )
 
     assert result["full_name"] == "John Doe"
-    assert "python" in result["skills"]
+    assert "python" in result["skills"]s

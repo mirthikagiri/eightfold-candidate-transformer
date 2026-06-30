@@ -1,5 +1,54 @@
 {
     "candidate_name": "Mirthika G",
     "primary_email": "mirthika2005@gmail.com",
-    "skills": []
+    "skills": [
+        "aws",
+        "azure",
+        "c",
+        "css",
+        "docker",
+        "express",
+        "fastapi",
+        "git",
+        "html",
+        "java",
+        "javascript",
+        "mongodb",
+        "mysql",
+        "postgresql",
+        "python",
+        "react"
+    ],
+    "primary_phone": null,
+    "_confidence": {
+        "full_name": 0.95,
+        "headline": 0.8,
+        "emails": 0.95,
+        "phones": 0.8,
+        "skills": 0.9,
+        "source_count": 0.0,
+        "provenance": 0.0
+    },
+    "_provenance": {
+        "full_name": {
+            "source": "resume_pdf",
+            "method": "extraction"
+        },
+        "headline": {
+            "source": "recruiter_csv",
+            "method": "structured_import"
+        },
+        "emails": {
+            "source": "resume_pdf",
+            "method": "extraction"
+        },
+        "phones": {
+            "source": "recruiter_csv",
+            "method": "structured_import"
+        },
+        "skills": {
+            "source": "resume_pdf",
+            "method": "extraction"
+        }
+    }
 }

@@ -16,6 +16,7 @@ class ResumeAdapter(BaseAdapter):
     def extract(self, source_path: str) -> Dict[str, Any]:
         try:
             text = self._extract_text(source_path)
+            print("\n+===resume text===+\n", text)
 
             emails = self._extract_emails(text)
             phones = self._extract_phones(text)

@@ -34,6 +34,7 @@ class CandidatePipeline:
             ResumeAdapter()
             .extract(resume_path)
         )
+        print(csv_data)
         print(resume_data)
 
         canonical = (
@@ -43,6 +44,7 @@ class CandidatePipeline:
                 resume_data
             )
         )
+        print(canonical)
 
         provenance = (
             ProvenanceTracker()
