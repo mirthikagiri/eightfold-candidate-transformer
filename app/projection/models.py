@@ -1,0 +1,18 @@
+from pydantic import BaseModel
+from typing import Optional
+
+
+class FieldRule(BaseModel):
+    path: str
+    from_field: Optional[str] = None
+    normalize: Optional[str] = None
+    required: bool = False
+
+
+class ProjectionPlan(BaseModel):
+    fields: list[FieldRule]
+
+    include_confidence: bool = False
+    include_provenance: bool = False
+
+    on_missing: str = "null"

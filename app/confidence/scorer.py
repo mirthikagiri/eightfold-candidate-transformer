@@ -21,15 +21,12 @@ class ConfidenceScorer:
         )
 
         if csv_exists and resume_exists:
-
             return 0.95
 
         if resume_exists:
-
             return 0.90
 
         if csv_exists:
-
             return 0.80
 
         return 0.0
@@ -44,7 +41,6 @@ class ConfidenceScorer:
         scores = {}
 
         for field in canonical:
-
             scores[field] = self.score_field(
                 field,
                 csv_data,
@@ -52,8 +48,7 @@ class ConfidenceScorer:
             )
 
         overall = (
-            sum(scores.values())
-            / len(scores)
+            sum(scores.values()) / len(scores)
             if scores
             else 0
         )

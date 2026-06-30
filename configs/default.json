@@ -15,8 +15,8 @@
       }
     ],
   
-    "include_provenance": true,
-    "include_confidence": true,
+    "include_provenance": false,
+    "include_confidence": false,
   
     "on_missing": "null"
   }
