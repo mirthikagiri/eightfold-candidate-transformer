@@ -70,12 +70,19 @@ class CandidatePipeline:
         validate_canonical(canonical)
 
         plan = ConfigCompiler().compile(config_path)
-        output = ProjectionEngine().project(canonical, plan)
-        validation = ProjectionValidator().validate(output, plan)
+        projection = ProjectionEngine().project(canonical, plan)
+        validation_report = ProjectionValidator().validate(
+            projection.output,
+            plan,
+            projection.missing_events,
+        )
+        validation = validation_report["validation"]
 
         return {
             "canonical": canonical,
-            "projected": output,
+            "projected": projection.output,
+            "validation": validation,
+            "missing_events": projection.missing_events,
             "errors": validation["errors"],
             "warnings": validation["warnings"],
         }

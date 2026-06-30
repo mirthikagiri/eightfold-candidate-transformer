@@ -1,5 +1,6 @@
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel
-from typing import Optional
 
 
 class FieldRule(BaseModel):
@@ -20,3 +21,8 @@ class ProjectionPlan(BaseModel):
     include_normalization_report: bool = False
 
     on_missing: str = "null"
+
+
+class ProjectionResult(BaseModel):
+    output: Dict[str, Any]
+    missing_events: List[Dict[str, Any]] = []

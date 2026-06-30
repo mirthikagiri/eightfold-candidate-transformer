@@ -1,10 +1,9 @@
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 
 from app.normalizers.email import normalize_email
 from app.normalizers.phone import normalize_phone
 from app.normalizers.skills import normalize_skills
-
-from app.projection.models import ProjectionPlan
+from app.projection.models import ProjectionPlan, ProjectionResult
 
 
 class ProjectionEngine:
@@ -55,26 +54,67 @@ class ProjectionEngine:
 
         return value
 
+    def _record_missing_event(
+        self,
+        missing_events: List[Dict[str, Any]],
+        field_path: str,
+        source_field: str,
+        strategy: str,
+        action: str,
+    ) -> None:
+        missing_events.append(
+            {
+                "field": field_path,
+                "source_field": source_field,
+                "strategy": strategy,
+                "action": action,
+                "reason": "missing",
+            }
+        )
+
     def project(
         self,
         canonical: dict,
         plan: ProjectionPlan,
-    ) -> dict:
-        output = {}
+    ) -> ProjectionResult:
+        output: Dict[str, Any] = {}
+        missing_events: List[Dict[str, Any]] = []
 
         for field in plan.fields:
             source_field = field.from_field if field.from_field else field.path
-
             value = self._resolve_path(canonical, field.from_field)
 
             if value is None:
                 if plan.on_missing == "omit":
+                    self._record_missing_event(
+                        missing_events,
+                        field.path,
+                        source_field,
+                        strategy="omit",
+                        action="omitted",
+                    )
                     continue
+
                 if plan.on_missing == "null":
                     output[field.path] = None
+                    self._record_missing_event(
+                        missing_events,
+                        field.path,
+                        source_field,
+                        strategy="null",
+                        action="set_null",
+                    )
                     continue
+
                 if plan.on_missing == "error":
-                    raise ValueError(f"Missing field: {source_field}")
+                    self._record_missing_event(
+                        missing_events,
+                        field.path,
+                        source_field,
+                        strategy="error",
+                        action="validation_error",
+                    )
+                    continue
 
             value = self._apply_normalizer(value, field.normalize)
             output[field.path] = value
@@ -97,4 +137,4 @@ class ProjectionEngine:
         if plan.include_normalization_report and "normalization_report" in canonical:
             output["_normalization_report"] = canonical["normalization_report"]
 
-        return output
+        return ProjectionResult(output=output, missing_events=missing_events)

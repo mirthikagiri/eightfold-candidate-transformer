@@ -18,7 +18,8 @@ def test_projection_with_nested_path():
     }
 
     plan = ConfigCompiler().compile("configs/default.json")
-    output = ProjectionEngine().project(canonical, plan)
+    projection = ProjectionEngine().project(canonical, plan)
+    output = projection.output
 
     assert output["candidate_name"] == "John Doe"
     assert output["primary_email"] == "john@gmail.com"

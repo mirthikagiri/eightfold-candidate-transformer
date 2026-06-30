@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 import typer
 
@@ -16,6 +16,14 @@ def _validate_input_path(path: str, label: str) -> Path:
     if not resolved.exists():
         raise typer.BadParameter(f"{label} not found: {path}")
     return resolved
+
+
+def _format_validation_message(entry: Dict[str, Any]) -> str:
+    field = entry.get("field", "unknown")
+    message = entry.get("message", "")
+    if message == "Required field missing":
+        return f"{field} missing"
+    return message or f"{field} missing"
 
 
 @app.command()
@@ -46,7 +54,7 @@ def run(
         help="Optional path to write the full canonical record",
     ),
 ):
-    
+
     _validate_input_path(csv, "CSV file")
     _validate_input_path(resume, "Resume file")
     _validate_input_path(config, "Config file")
@@ -62,16 +70,9 @@ def run(
         config_path=config,
     )
 
-    if result["warnings"]:
-        typer.echo("\nValidation Warnings:")
-        for warning in result["warnings"]:
-            typer.echo(f"  - {warning}")
-
-    if result["errors"]:
-        typer.echo("\nValidation Errors:")
-        for error in result["errors"]:
-            typer.echo(f"  - {error}")
-        raise typer.Exit(code=1)
+    validation = result["validation"]
+    warnings: List[Dict[str, Any]] = validation.get("warnings", [])
+    errors: List[Dict[str, Any]] = validation.get("errors", [])
 
     output_path = Path(output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -87,6 +88,18 @@ def run(
         with open(canonical_path, "w", encoding="utf-8") as f:
             json.dump(result["canonical"], f, indent=4, default=str)
         typer.echo(f"Canonical record saved to {canonical_path}")
+
+    if warnings:
+        typer.echo("\nValidation Warnings:")
+        for warning in warnings:
+            typer.echo(f"  - {_format_validation_message(warning)}")
+
+    if errors:
+        typer.echo("\nValidation Errors:")
+        for error in errors:
+            typer.echo(f"  - {_format_validation_message(error)}")
+        typer.echo("\nPipeline completed with validation errors.")
+        raise typer.Exit(code=1)
 
     quality = result["canonical"].get("quality_report", {})
     typer.echo(

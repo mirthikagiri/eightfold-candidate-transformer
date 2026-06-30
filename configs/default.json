@@ -31,5 +31,5 @@
   "include_audit": true,
   "include_conflicts": true,
   "include_normalization_report": true,
-  "on_missing": "null"
+  "on_missing": "omit"
 }
