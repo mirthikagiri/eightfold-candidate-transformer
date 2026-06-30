@@ -1,7 +1,7 @@
 {
     "candidate_name": "Mirthika G",
     "primary_email": "mirthika2005@gmail.com",
-    "primary_phone": null,
+    "primary_phone": "+919150281501",
     "location_city": null,
     "skills": [
         "aws",
@@ -27,7 +27,7 @@
         "years_experience": 0.0,
         "location": 0.0,
         "emails": 0.95,
-        "phones": 0.65,
+        "phones": 0.8,
         "skills": 0.9,
         "links": 0.0,
         "experience": 0.0,
@@ -76,7 +76,7 @@
         },
         "phones": {
             "value": [
-                "+91 9150XX9870"
+                "+919150281501"
             ],
             "sources": [
                 "recruiter_csv"
@@ -139,7 +139,7 @@
         "quality_score": 72,
         "completeness_score": 64,
         "consistency_score": 100,
-        "trust_score": 52,
+        "trust_score": 53,
         "missing_fields": [
             "location",
             "years_experience",
@@ -189,7 +189,7 @@
             "selected_source": null,
             "competing_values": [],
             "resolution_policy": "union_dedupe",
-            "confidence": 0.65
+            "confidence": 0.8
         },
         "skills": {
             "selected_source": null,

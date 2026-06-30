@@ -7,7 +7,7 @@ import typer
 from app.services.pipeline import CandidatePipeline
 
 app = typer.Typer(
-    help="Candidate Canonicalization Engine — merge recruiter CSV and resume PDF into a canonical profile.",
+    help="Candidate Canonization Engine — merge recruiter CSV and resume PDF into a canonical profile.",
 )
 
 
@@ -46,12 +46,12 @@ def run(
         help="Optional path to write the full canonical record",
     ),
 ):
-    """Run the candidate canonicalization pipeline."""
+    
     _validate_input_path(csv, "CSV file")
     _validate_input_path(resume, "Resume file")
     _validate_input_path(config, "Config file")
 
-    typer.echo("Running Candidate Canonicalization Engine...")
+    typer.echo("Running Candidate Transformer Pipeline...")
     typer.echo(f"  CSV:    {csv}")
     typer.echo(f"  Resume: {resume}")
     typer.echo(f"  Config: {config}")
