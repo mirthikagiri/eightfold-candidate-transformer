@@ -63,19 +63,95 @@
                 "resume_pdf"
             ],
             "method": "merge",
-            "resolution_policy": "union_dedupe"
+            "resolution_policy": "union_dedupe",
+            "items": [
+                {
+                    "value": "mirthika2005@gmail.com",
+                    "sources": [
+                        "recruiter_csv",
+                        "resume_pdf"
+                    ]
+                }
+            ]
         },
         "phones": {
             "sources": [],
             "method": "missing",
-            "resolution_policy": "union_dedupe"
+            "resolution_policy": "union_dedupe",
+            "items": []
         },
         "skills": {
             "sources": [
                 "resume_pdf"
             ],
             "method": "extraction",
-            "resolution_policy": "union_canonical"
+            "resolution_policy": "union_canonical",
+            "items": [
+                {
+                    "value": "aws",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "azure",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "c",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "css",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "docker",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "express",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "fastapi",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "git",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "html",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "java",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "javascript",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "mongodb",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "mysql",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "postgresql",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "python",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "react",
+                    "source": "resume_pdf"
+                }
+            ]
         },
         "links": {
             "sources": [],
@@ -85,21 +161,31 @@
         "experience": {
             "sources": [],
             "method": "missing",
-            "resolution_policy": "merge_unique"
+            "resolution_policy": "merge_unique",
+            "items": []
         },
         "education": {
             "sources": [
                 "resume_pdf"
             ],
             "method": "extraction",
-            "resolution_policy": "merge_unique"
+            "resolution_policy": "merge_unique",
+            "items": [
+                {
+                    "value": {
+                        "institution": "Chennai Institute Of Technology, B.E Computer Science and Engineering",
+                        "degree": "2023 - 2027"
+                    },
+                    "source": "resume_pdf"
+                }
+            ]
         }
     },
     "_quality": {
-        "quality_score": 60,
+        "quality_score": 74,
         "completeness_score": 55,
         "consistency_score": 80,
-        "trust_score": 44,
+        "trust_score": 88,
         "missing_fields": [
             "phones",
             "location",
@@ -109,7 +195,8 @@
         ],
         "conflicts_detected": 1,
         "normalization_failures": 1,
-        "source_count": 2
+        "source_count": 2,
+        "overall_confidence": 0.88
     },
     "_audit": {
         "full_name": {
@@ -325,12 +412,14 @@
             "values": [
                 {
                     "source": "recruiter_csv",
-                    "value": "Mirthika",
+                    "raw_value": "Mirthika",
+                    "normalized_value": "Mirthika",
                     "status": "valid"
                 },
                 {
                     "source": "resume_pdf",
-                    "value": "Mirthika G",
+                    "raw_value": "Mirthika G",
+                    "normalized_value": "Mirthika G",
                     "status": "valid"
                 }
             ],
@@ -361,5 +450,46 @@
             "normalized_value": "mirthika2005@gmail.com",
             "status": "valid"
         }
-    ]
+    ],
+    "_validation": {
+        "passed": false,
+        "errors": [
+            {
+                "field": "primary_phone",
+                "severity": "error",
+                "message": "Required field missing"
+            },
+            {
+                "field": "location_city",
+                "severity": "error",
+                "message": "Required field missing"
+            }
+        ],
+        "warnings": [
+            {
+                "field": "primary_phone",
+                "strategy": "error",
+                "action": "missing",
+                "message": "primary_phone is missing"
+            },
+            {
+                "field": "location_city",
+                "strategy": "error",
+                "action": "missing",
+                "message": "location_city is missing"
+            }
+        ],
+        "missing_decisions": [
+            {
+                "field": "primary_phone",
+                "strategy": "error",
+                "action": "validation_error"
+            },
+            {
+                "field": "location_city",
+                "strategy": "error",
+                "action": "validation_error"
+            }
+        ]
+    }
 }

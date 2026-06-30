@@ -48,6 +48,13 @@ def test_invalid_csv_phone_does_not_poison_valid_resume_phone():
     assert len(phone_conflicts) == 1
     assert phone_conflicts[0]["reason"] == "valid_value_priority"
     assert phone_conflicts[0]["selected"] == ["+919150281501"]
+    invalid_values = [
+        value
+        for value in phone_conflicts[0]["values"]
+        if value["status"] == "invalid"
+    ]
+    assert invalid_values
+    assert invalid_values[0]["raw_value"] == "91xx87625h"
 
 
 def test_invalid_phone_in_both_sources_yields_empty_phones():

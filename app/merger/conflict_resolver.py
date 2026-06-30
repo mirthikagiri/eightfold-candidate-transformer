@@ -220,16 +220,38 @@ class ConflictResolver:
         return {
             "field": field,
             "values": [
-                {
-                    "source": candidate.get("source"),
-                    "value": candidate.get("value"),
-                    "status": candidate.get("status", "valid"),
-                }
+                ConflictResolver._format_conflict_entry(candidate)
                 for candidate in candidates
-                if candidate.get("value") is not None
+                if ConflictResolver._should_include_in_conflict(candidate)
             ],
             "selected": selected,
             "reason": reason,
+        }
+
+    @staticmethod
+    def _should_include_in_conflict(candidate: Dict[str, Any]) -> bool:
+        if candidate.get("raw_value") is not None:
+            return True
+        value = candidate.get("value")
+        return value is not None and value != ""
+
+    @staticmethod
+    def _format_conflict_entry(candidate: Dict[str, Any]) -> Dict[str, Any]:
+        raw_value = candidate.get("raw_value")
+        normalized_value = candidate.get("value")
+        status = candidate.get("status", "valid")
+
+        if raw_value is None and normalized_value is not None:
+            raw_value = normalized_value
+
+        if status == "invalid":
+            normalized_value = None
+
+        return {
+            "source": candidate.get("source"),
+            "raw_value": raw_value,
+            "normalized_value": normalized_value,
+            "status": status,
         }
 
     @staticmethod

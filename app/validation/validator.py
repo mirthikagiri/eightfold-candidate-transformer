@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from app.projection.models import ProjectionPlan
 
@@ -10,6 +10,7 @@ class ProjectionValidator:
         output: Dict[str, Any],
         plan: ProjectionPlan,
         missing_events: List[Dict[str, Any]] | None = None,
+        identity: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         missing_events = missing_events or []
         errors: List[Dict[str, Any]] = []
@@ -42,6 +43,17 @@ class ProjectionValidator:
                         "strategy": "omit",
                         "action": "omitted",
                         "message": f"{event['field']} missing",
+                    }
+                )
+
+        if identity is not None:
+            identity_score = float(identity.get("identity_score", 0.0))
+            if identity_score < plan.identity_warning_threshold:
+                warnings.append(
+                    {
+                        "field": "_identity",
+                        "severity": "warning",
+                        "message": f"Low identity confidence: {identity_score:.2f}",
                     }
                 )
 

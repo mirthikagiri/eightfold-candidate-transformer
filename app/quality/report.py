@@ -1,7 +1,20 @@
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List
+
+from app.confidence.scorer import ConfidenceScorer
 
 
 class QualityReport:
+    """
+    Quality scoring for canonical candidate records.
+
+    Formulas:
+    - completeness_score = (present_core_fields / total_core_fields) * 100
+    - consistency_score = max(0, 100 - (conflicts * 12) - (normalization_failures * 8))
+    - trust_score = round(avg(present_field_confidence) * 100)
+      Uses the same present-field selection as overall_confidence in ConfidenceScorer.
+    - quality_score = round((completeness + consistency + trust) / 3)
+    """
+
     CORE_FIELDS = [
         "candidate_id",
         "full_name",
@@ -18,18 +31,7 @@ class QualityReport:
 
     CRITICAL_FIELDS = {"full_name", "emails", "phones"}
 
-    CONFIDENCE_FIELDS = [
-        "full_name",
-        "emails",
-        "phones",
-        "location",
-        "headline",
-        "years_experience",
-        "skills",
-        "experience",
-        "education",
-        "links",
-    ]
+    CONFIDENCE_FIELDS = ConfidenceScorer.SCORABLE_FIELDS
 
     def generate(
         self,
@@ -55,7 +57,7 @@ class QualityReport:
             conflicts_detected,
             normalization_failures,
         )
-        trust_score = self._trust_score(confidence_scores)
+        trust_score = self._trust_score(confidence_scores, canonical)
         quality_score = round(
             (completeness_score + consistency_score + trust_score) / 3
         )
@@ -69,6 +71,7 @@ class QualityReport:
             "conflicts_detected": conflicts_detected,
             "normalization_failures": normalization_failures,
             "source_count": source_count,
+            "overall_confidence": canonical.get("overall_confidence"),
         }
 
     def _missing_fields(self, canonical: Dict[str, Any]) -> List[str]:
@@ -104,13 +107,18 @@ class QualityReport:
         penalty = min((conflicts_detected * 12) + (normalization_failures * 8), 100)
         return max(0, 100 - penalty)
 
-    def _trust_score(self, confidence_scores: Dict[str, float]) -> int:
-        relevant = [
+    def _trust_score(
+        self,
+        confidence_scores: Dict[str, float],
+        canonical: Dict[str, Any],
+    ) -> int:
+        present_scores = [
             confidence_scores[field]
             for field in self.CONFIDENCE_FIELDS
             if field in confidence_scores
+            and self._is_present(canonical.get(field))
         ]
-        if not relevant:
+        if not present_scores:
             return 0
-        average = sum(relevant) / len(relevant)
+        average = sum(present_scores) / len(present_scores)
         return round(average * 100)

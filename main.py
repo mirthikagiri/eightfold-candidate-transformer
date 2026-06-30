@@ -70,6 +70,17 @@ def run(
         config_path=config,
     )
 
+    if result.get("config_errors"):
+        typer.echo("\nConfig Errors:")
+        for error in result["config_errors"]:
+            typer.echo(f"  - {error}")
+        typer.echo("\nPipeline completed with config errors.")
+        raise typer.Exit(code=1)
+
+    if result.get("canonical") is None:
+        typer.echo("\nPipeline completed with errors.")
+        raise typer.Exit(code=1)
+
     validation = result["validation"]
     warnings: List[Dict[str, Any]] = validation.get("warnings", [])
     errors: List[Dict[str, Any]] = validation.get("errors", [])

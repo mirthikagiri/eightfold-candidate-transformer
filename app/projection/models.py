@@ -19,8 +19,10 @@ class ProjectionPlan(BaseModel):
     include_audit: bool = False
     include_conflicts: bool = False
     include_normalization_report: bool = False
+    include_validation: bool = False
 
     on_missing: str = "null"
+    identity_warning_threshold: float = 0.50
 
 
 class ProjectionResult(BaseModel):

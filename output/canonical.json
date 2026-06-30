@@ -6,9 +6,7 @@
     "emails": [
         "mirthika2005@gmail.com"
     ],
-    "phones": [
-        "+919150281501"
-    ],
+    "phones": [],
     "skills": [
         "aws",
         "azure",
@@ -36,15 +34,35 @@
         }
     ],
     "source_count": 2,
-    "conflict_report": [],
+    "conflict_report": [
+        {
+            "field": "full_name",
+            "values": [
+                {
+                    "source": "recruiter_csv",
+                    "raw_value": "Mirthika",
+                    "normalized_value": "Mirthika",
+                    "status": "valid"
+                },
+                {
+                    "source": "resume_pdf",
+                    "raw_value": "Mirthika G",
+                    "normalized_value": "Mirthika G",
+                    "status": "valid"
+                }
+            ],
+            "selected": "Mirthika G",
+            "reason": "resume_priority"
+        }
+    ],
     "_merge_decisions": {
         "full_name": {
             "selected": "Mirthika G",
-            "selected_source": "recruiter_csv",
+            "selected_source": "resume_pdf",
             "candidate_values": [
                 {
                     "source": "recruiter_csv",
-                    "value": "Mirthika G",
+                    "value": "Mirthika",
                     "status": "valid"
                 },
                 {
@@ -54,15 +72,33 @@
                 }
             ],
             "competing_values": [
-                "Mirthika G",
+                "Mirthika",
                 "Mirthika G"
             ],
-            "resolution_policy": "source_agreement",
+            "resolution_policy": "resume_priority",
             "sources": [
                 "recruiter_csv",
                 "resume_pdf"
             ],
-            "conflict": null
+            "conflict": {
+                "field": "full_name",
+                "values": [
+                    {
+                        "source": "recruiter_csv",
+                        "raw_value": "Mirthika",
+                        "normalized_value": "Mirthika",
+                        "status": "valid"
+                    },
+                    {
+                        "source": "resume_pdf",
+                        "raw_value": "Mirthika G",
+                        "normalized_value": "Mirthika G",
+                        "status": "valid"
+                    }
+                ],
+                "selected": "Mirthika G",
+                "reason": "resume_priority"
+            }
         },
         "headline": {
             "selected": "Software Engineering Intern",
@@ -130,23 +166,12 @@
             "conflict": null
         },
         "phones": {
-            "selected": [
-                "+919150281501"
-            ],
-            "selected_source": "recruiter_csv",
-            "candidate_values": [
-                {
-                    "source": "recruiter_csv",
-                    "value": "+919150281501",
-                    "raw_value": "+919150281501",
-                    "status": "valid"
-                }
-            ],
+            "selected": [],
+            "selected_source": null,
+            "candidate_values": [],
             "competing_values": [],
             "resolution_policy": "union_dedupe",
-            "sources": [
-                "recruiter_csv"
-            ],
+            "sources": [],
             "conflict": null
         },
         "skills": {
@@ -220,9 +245,10 @@
         {
             "field": "phone",
             "source": "recruiter_csv",
-            "raw_value": "+91 9150281501",
-            "normalized_value": "+919150281501",
-            "status": "valid"
+            "raw_value": "+91 915xxxx501",
+            "normalized_value": null,
+            "status": "invalid",
+            "reason": "invalid_phone_format"
         },
         {
             "field": "email",
@@ -246,7 +272,7 @@
                 "resume_pdf"
             ],
             "method": "merge",
-            "resolution_policy": "source_agreement"
+            "resolution_policy": "resume_priority"
         },
         "headline": {
             "sources": [
@@ -271,21 +297,95 @@
                 "resume_pdf"
             ],
             "method": "merge",
-            "resolution_policy": "union_dedupe"
+            "resolution_policy": "union_dedupe",
+            "items": [
+                {
+                    "value": "mirthika2005@gmail.com",
+                    "sources": [
+                        "recruiter_csv",
+                        "resume_pdf"
+                    ]
+                }
+            ]
         },
         "phones": {
-            "sources": [
-                "recruiter_csv"
-            ],
-            "method": "structured_import",
-            "resolution_policy": "union_dedupe"
+            "sources": [],
+            "method": "missing",
+            "resolution_policy": "union_dedupe",
+            "items": []
         },
         "skills": {
             "sources": [
                 "resume_pdf"
             ],
             "method": "extraction",
-            "resolution_policy": "union_canonical"
+            "resolution_policy": "union_canonical",
+            "items": [
+                {
+                    "value": "aws",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "azure",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "c",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "css",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "docker",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "express",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "fastapi",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "git",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "html",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "java",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "javascript",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "mongodb",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "mysql",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "postgresql",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "python",
+                    "source": "resume_pdf"
+                },
+                {
+                    "value": "react",
+                    "source": "resume_pdf"
+                }
+            ]
         },
         "links": {
             "sources": [],
@@ -295,20 +395,30 @@
         "experience": {
             "sources": [],
             "method": "missing",
-            "resolution_policy": "merge_unique"
+            "resolution_policy": "merge_unique",
+            "items": []
         },
         "education": {
             "sources": [
                 "resume_pdf"
             ],
             "method": "extraction",
-            "resolution_policy": "merge_unique"
+            "resolution_policy": "merge_unique",
+            "items": [
+                {
+                    "value": {
+                        "institution": "Chennai Institute Of Technology, B.E Computer Science and Engineering",
+                        "degree": "2023 - 2027"
+                    },
+                    "source": "resume_pdf"
+                }
+            ]
         }
     },
     "confidence": {
-        "full_name": 0.95,
+        "full_name": 0.8,
         "emails": 1.0,
-        "phones": 0.85,
+        "phones": 0.0,
         "location": 0.0,
         "headline": 0.8,
         "years_experience": 0.0,
@@ -317,15 +427,15 @@
         "education": 0.9,
         "links": 0.0
     },
-    "overall_confidence": 0.9,
+    "overall_confidence": 0.88,
     "_audit": {
         "full_name": {
             "selected_value": "Mirthika G",
-            "selected_source": "recruiter_csv",
+            "selected_source": "resume_pdf",
             "candidate_values": [
                 {
                     "source": "recruiter_csv",
-                    "value": "Mirthika G",
+                    "value": "Mirthika",
                     "status": "valid"
                 },
                 {
@@ -334,8 +444,8 @@
                     "status": "valid"
                 }
             ],
-            "resolution_policy": "source_agreement",
-            "confidence": 0.95,
+            "resolution_policy": "resume_priority",
+            "confidence": 0.8,
             "normalizations": []
         },
         "headline": {
@@ -408,20 +518,17 @@
             ]
         },
         "phones": {
-            "selected_value": [
-                "+919150281501"
-            ],
-            "selected_source": "recruiter_csv",
+            "selected_value": [],
+            "selected_source": null,
             "candidate_values": [
                 {
-                    "source": "recruiter_csv",
-                    "value": "+919150281501",
-                    "raw_value": "+919150281501",
+                    "source": null,
+                    "value": [],
                     "status": "valid"
                 }
             ],
             "resolution_policy": "union_dedupe",
-            "confidence": 0.85,
+            "confidence": 0.0,
             "normalizations": [
                 "E164"
             ]
@@ -530,18 +637,20 @@
         }
     },
     "quality_report": {
-        "quality_score": 73,
-        "completeness_score": 64,
-        "consistency_score": 100,
-        "trust_score": 54,
+        "quality_score": 74,
+        "completeness_score": 55,
+        "consistency_score": 80,
+        "trust_score": 88,
         "missing_fields": [
+            "phones",
             "location",
             "years_experience",
             "experience",
             "links"
         ],
-        "conflicts_detected": 0,
-        "normalization_failures": 0,
-        "source_count": 2
+        "conflicts_detected": 1,
+        "normalization_failures": 1,
+        "source_count": 2,
+        "overall_confidence": 0.88
     }
 }

@@ -10,6 +10,20 @@ def test_provenance_merged_sources():
             "emails": {
                 "sources": ["recruiter_csv", "resume_pdf"],
                 "resolution_policy": "union_dedupe",
+                "candidate_values": [
+                    {
+                        "source": "recruiter_csv",
+                        "value": "john@gmail.com",
+                        "raw_value": "john@gmail.com",
+                        "status": "valid",
+                    },
+                    {
+                        "source": "resume_pdf",
+                        "value": "john@gmail.com",
+                        "raw_value": "john@gmail.com",
+                        "status": "valid",
+                    },
+                ],
             }
         },
     }
@@ -21,3 +35,4 @@ def test_provenance_merged_sources():
         "recruiter_csv",
         "resume_pdf",
     }
+    assert provenance["emails"]["items"][0]["value"] == "john@gmail.com"

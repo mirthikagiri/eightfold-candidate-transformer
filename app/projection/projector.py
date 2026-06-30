@@ -116,6 +116,16 @@ class ProjectionEngine:
                     )
                     continue
 
+                output[field.path] = None
+                self._record_missing_event(
+                    missing_events,
+                    field.path,
+                    source_field,
+                    strategy=plan.on_missing,
+                    action="set_null",
+                )
+                continue
+
             value = self._apply_normalizer(value, field.normalize)
             output[field.path] = value
 

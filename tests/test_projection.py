@@ -28,3 +28,16 @@ def test_projection_with_nested_path():
     assert "_audit" in output
     assert "_conflicts" in output
     assert "_normalization_report" in output
+
+
+def test_pipeline_attaches_validation_when_configured():
+    from app.services.pipeline import CandidatePipeline
+
+    result = CandidatePipeline().run(
+        csv_path="sample_data/recruiter.csv",
+        resume_path="sample_data/resume.pdf",
+        config_path="configs/default.json",
+    )
+
+    assert "_validation" in result["projected"]
+    assert "passed" in result["projected"]["_validation"]
