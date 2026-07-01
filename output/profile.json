@@ -1,23 +1,22 @@
 {
-    "candidate_name": "Mirthika G",
-    "primary_email": "mirthika2005@gmail.com",
+    "candidate_name": "AKSHAY VAISHNAV",
+    "primary_email": "vaishnavakshay007@gmail.com",
+    "phone": null,
     "skills": [
-        "aws",
-        "azure",
+        "ansys",
+        "autocad",
         "c",
-        "css",
-        "docker",
-        "express",
-        "fastapi",
-        "git",
-        "html",
-        "java",
-        "javascript",
-        "mongodb",
-        "mysql",
-        "postgresql",
-        "python",
-        "react"
+        "catia",
+        "catia v5",
+        "cfd",
+        "fea",
+        "finite element analysis",
+        "fluid mechanics",
+        "matlab",
+        "modeling and simulation",
+        "optimization",
+        "product development",
+        "robotics"
     ],
     "_confidence": {
         "full_name": 0.8,
@@ -42,10 +41,11 @@
         },
         "headline": {
             "sources": [
-                "recruiter_csv"
+                "recruiter_csv",
+                "resume_pdf"
             ],
-            "method": "structured_import",
-            "resolution_policy": "source_agreement"
+            "method": "merge",
+            "resolution_policy": "resume_priority"
         },
         "years_experience": {
             "sources": [],
@@ -66,7 +66,7 @@
             "resolution_policy": "union_dedupe",
             "items": [
                 {
-                    "value": "mirthika2005@gmail.com",
+                    "value": "vaishnavakshay007@gmail.com",
                     "sources": [
                         "recruiter_csv",
                         "resume_pdf"
@@ -88,11 +88,11 @@
             "resolution_policy": "union_canonical",
             "items": [
                 {
-                    "value": "aws",
+                    "value": "ansys",
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "azure",
+                    "value": "autocad",
                     "source": "resume_pdf"
                 },
                 {
@@ -100,55 +100,47 @@
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "css",
+                    "value": "catia",
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "docker",
+                    "value": "catia v5",
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "express",
+                    "value": "cfd",
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "fastapi",
+                    "value": "fea",
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "git",
+                    "value": "finite element analysis",
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "html",
+                    "value": "fluid mechanics",
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "java",
+                    "value": "matlab",
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "javascript",
+                    "value": "modeling and simulation",
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "mongodb",
+                    "value": "optimization",
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "mysql",
+                    "value": "product development",
                     "source": "resume_pdf"
                 },
                 {
-                    "value": "postgresql",
-                    "source": "resume_pdf"
-                },
-                {
-                    "value": "python",
-                    "source": "resume_pdf"
-                },
-                {
-                    "value": "react",
+                    "value": "robotics",
                     "source": "resume_pdf"
                 }
             ]
@@ -173,8 +165,8 @@
             "items": [
                 {
                     "value": {
-                        "institution": "Chennai Institute Of Technology, B.E Computer Science and Engineering",
-                        "degree": "2023 - 2027"
+                        "institution": "Bachelor of Engineering in Mechanical Engineering",
+                        "degree": "August 2012 - May 2016"
                     },
                     "source": "resume_pdf"
                 }
@@ -182,9 +174,9 @@
         }
     },
     "_quality": {
-        "quality_score": 74,
+        "quality_score": 70,
         "completeness_score": 55,
-        "consistency_score": 80,
+        "consistency_score": 68,
         "trust_score": 88,
         "missing_fields": [
             "phones",
@@ -193,24 +185,24 @@
             "experience",
             "links"
         ],
-        "conflicts_detected": 1,
+        "conflicts_detected": 2,
         "normalization_failures": 1,
         "source_count": 2,
         "overall_confidence": 0.88
     },
     "_audit": {
         "full_name": {
-            "selected_value": "Mirthika G",
+            "selected_value": "AKSHAY VAISHNAV",
             "selected_source": "resume_pdf",
             "candidate_values": [
                 {
                     "source": "recruiter_csv",
-                    "value": "Mirthika",
+                    "value": "A. Vaishnav",
                     "status": "valid"
                 },
                 {
                     "source": "resume_pdf",
-                    "value": "Mirthika G",
+                    "value": "AKSHAY VAISHNAV",
                     "status": "valid"
                 }
             ],
@@ -219,16 +211,21 @@
             "normalizations": []
         },
         "headline": {
-            "selected_value": "Software Engineering Intern",
-            "selected_source": "recruiter_csv",
+            "selected_value": "INTERNSHIP/TRAININGS",
+            "selected_source": "resume_pdf",
             "candidate_values": [
                 {
                     "source": "recruiter_csv",
-                    "value": "Software Engineering Intern",
+                    "value": "CAE Engineer",
+                    "status": "valid"
+                },
+                {
+                    "source": "resume_pdf",
+                    "value": "INTERNSHIP/TRAININGS",
                     "status": "valid"
                 }
             ],
-            "resolution_policy": "source_agreement",
+            "resolution_policy": "resume_priority",
             "confidence": 0.8,
             "normalizations": []
         },
@@ -264,20 +261,20 @@
         },
         "emails": {
             "selected_value": [
-                "mirthika2005@gmail.com"
+                "vaishnavakshay007@gmail.com"
             ],
             "selected_source": null,
             "candidate_values": [
                 {
                     "source": "recruiter_csv",
-                    "value": "mirthika2005@gmail.com",
-                    "raw_value": "mirthika2005@gmail.com",
+                    "value": "vaishnavakshay007@gmail.com",
+                    "raw_value": "vaishnavakshay007@gmail.com",
                     "status": "valid"
                 },
                 {
                     "source": "resume_pdf",
-                    "value": "mirthika2005@gmail.com",
-                    "raw_value": "mirthika2005@gmail.com",
+                    "value": "vaishnavakshay007@gmail.com",
+                    "raw_value": "vaishnavakshay007@gmail.com",
                     "status": "valid"
                 }
             ],
@@ -305,44 +302,40 @@
         },
         "skills": {
             "selected_value": [
-                "aws",
-                "azure",
+                "ansys",
+                "autocad",
                 "c",
-                "css",
-                "docker",
-                "express",
-                "fastapi",
-                "git",
-                "html",
-                "java",
-                "javascript",
-                "mongodb",
-                "mysql",
-                "postgresql",
-                "python",
-                "react"
+                "catia",
+                "catia v5",
+                "cfd",
+                "fea",
+                "finite element analysis",
+                "fluid mechanics",
+                "matlab",
+                "modeling and simulation",
+                "optimization",
+                "product development",
+                "robotics"
             ],
             "selected_source": null,
             "candidate_values": [
                 {
                     "source": null,
                     "value": [
-                        "aws",
-                        "azure",
+                        "ansys",
+                        "autocad",
                         "c",
-                        "css",
-                        "docker",
-                        "express",
-                        "fastapi",
-                        "git",
-                        "html",
-                        "java",
-                        "javascript",
-                        "mongodb",
-                        "mysql",
-                        "postgresql",
-                        "python",
-                        "react"
+                        "catia",
+                        "catia v5",
+                        "cfd",
+                        "fea",
+                        "finite element analysis",
+                        "fluid mechanics",
+                        "matlab",
+                        "modeling and simulation",
+                        "optimization",
+                        "product development",
+                        "robotics"
                     ],
                     "status": "valid"
                 }
@@ -384,8 +377,8 @@
         "education": {
             "selected_value": [
                 {
-                    "institution": "Chennai Institute Of Technology, B.E Computer Science and Engineering",
-                    "degree": "2023 - 2027"
+                    "institution": "Bachelor of Engineering in Mechanical Engineering",
+                    "degree": "August 2012 - May 2016"
                 }
             ],
             "selected_source": null,
@@ -394,8 +387,8 @@
                     "source": null,
                     "value": [
                         {
-                            "institution": "Chennai Institute Of Technology, B.E Computer Science and Engineering",
-                            "degree": "2023 - 2027"
+                            "institution": "Bachelor of Engineering in Mechanical Engineering",
+                            "degree": "August 2012 - May 2016"
                         }
                     ],
                     "status": "valid"
@@ -412,18 +405,37 @@
             "values": [
                 {
                     "source": "recruiter_csv",
-                    "raw_value": "Mirthika",
-                    "normalized_value": "Mirthika",
+                    "raw_value": "A. Vaishnav",
+                    "normalized_value": "A. Vaishnav",
                     "status": "valid"
                 },
                 {
                     "source": "resume_pdf",
-                    "raw_value": "Mirthika G",
-                    "normalized_value": "Mirthika G",
+                    "raw_value": "AKSHAY VAISHNAV",
+                    "normalized_value": "AKSHAY VAISHNAV",
                     "status": "valid"
                 }
             ],
-            "selected": "Mirthika G",
+            "selected": "AKSHAY VAISHNAV",
+            "reason": "resume_priority"
+        },
+        {
+            "field": "headline",
+            "values": [
+                {
+                    "source": "recruiter_csv",
+                    "raw_value": "CAE Engineer",
+                    "normalized_value": "CAE Engineer",
+                    "status": "valid"
+                },
+                {
+                    "source": "resume_pdf",
+                    "raw_value": "INTERNSHIP/TRAININGS",
+                    "normalized_value": "INTERNSHIP/TRAININGS",
+                    "status": "valid"
+                }
+            ],
+            "selected": "INTERNSHIP/TRAININGS",
             "reason": "resume_priority"
         }
     ],
@@ -431,7 +443,7 @@
         {
             "field": "phone",
             "source": "recruiter_csv",
-            "raw_value": "+91 915xxxx501",
+            "raw_value": "72xx937889",
             "normalized_value": null,
             "status": "invalid",
             "reason": "invalid_phone_format"
@@ -439,57 +451,16 @@
         {
             "field": "email",
             "source": "recruiter_csv",
-            "raw_value": "mirthika2005@gmail.com",
-            "normalized_value": "mirthika2005@gmail.com",
+            "raw_value": "VAISHNAVAKSHAY007@GMAIL.COM",
+            "normalized_value": "vaishnavakshay007@gmail.com",
             "status": "valid"
         },
         {
             "field": "email",
             "source": "resume_pdf",
-            "raw_value": "mirthika2005@gmail.com",
-            "normalized_value": "mirthika2005@gmail.com",
+            "raw_value": "vaishnavakshay007@gmail.com",
+            "normalized_value": "vaishnavakshay007@gmail.com",
             "status": "valid"
         }
-    ],
-    "_validation": {
-        "passed": false,
-        "errors": [
-            {
-                "field": "primary_phone",
-                "severity": "error",
-                "message": "Required field missing"
-            },
-            {
-                "field": "location_city",
-                "severity": "error",
-                "message": "Required field missing"
-            }
-        ],
-        "warnings": [
-            {
-                "field": "primary_phone",
-                "strategy": "error",
-                "action": "missing",
-                "message": "primary_phone is missing"
-            },
-            {
-                "field": "location_city",
-                "strategy": "error",
-                "action": "missing",
-                "message": "location_city is missing"
-            }
-        ],
-        "missing_decisions": [
-            {
-                "field": "primary_phone",
-                "strategy": "error",
-                "action": "validation_error"
-            },
-            {
-                "field": "location_city",
-                "strategy": "error",
-                "action": "validation_error"
-            }
-        ]
-    }
+    ]
 }

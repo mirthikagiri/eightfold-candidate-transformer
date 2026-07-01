@@ -1,9 +1,9 @@
-import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import typer
 
+from app.output.generator import OutputGenerator
 from app.services.pipeline import CandidatePipeline
 
 app = typer.Typer(
@@ -77,6 +77,13 @@ def run(
         typer.echo("\nPipeline completed with config errors.")
         raise typer.Exit(code=1)
 
+    if result.get("schema_errors"):
+        typer.echo("\nSchema Errors:")
+        for error in result["schema_errors"]:
+            typer.echo(f"  - {error}")
+        typer.echo("\nPipeline completed with schema errors.")
+        raise typer.Exit(code=1)
+
     if result.get("canonical") is None:
         typer.echo("\nPipeline completed with errors.")
         raise typer.Exit(code=1)
@@ -85,19 +92,15 @@ def run(
     warnings: List[Dict[str, Any]] = validation.get("warnings", [])
     errors: List[Dict[str, Any]] = validation.get("errors", [])
 
-    output_path = Path(output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(result["projected"], f, indent=4)
-
+    output_gen = OutputGenerator()
+    output_path = output_gen.write_projected(output, result["projected"])
     typer.echo(f"\nProjected output saved to {output_path}")
 
     if canonical_output:
-        canonical_path = Path(canonical_output)
-        canonical_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(canonical_path, "w", encoding="utf-8") as f:
-            json.dump(result["canonical"], f, indent=4, default=str)
+        canonical_path = output_gen.write_canonical(
+            canonical_output,
+            result["canonical"],
+        )
         typer.echo(f"Canonical record saved to {canonical_path}")
 
     if warnings:

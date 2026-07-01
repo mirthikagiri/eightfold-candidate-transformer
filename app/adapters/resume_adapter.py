@@ -194,7 +194,20 @@ class ResumeAdapter(BaseAdapter):
             "azure",
             "git",
             "linux",
-        }
+            "autocad",
+        "catia",
+    "catia v5",
+    "ansys",
+    "matlab",
+    "fea",
+    "cfd",
+    "robotics",
+    "fluid mechanics",
+    "optimization",
+    "product development",
+    "modeling and simulation",
+    "finite element analysis"        
+    }
 
         text_lower = text.lower()
         found = []

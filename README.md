@@ -5,36 +5,112 @@ Transform multiple candidate sources into a single canonical profile with determ
 ## Architecture
 
 ```mermaid
-flowchart LR
-    CSV[Recruiter CSV] --> A1[CSV Adapter]
-    PDF[Resume PDF] --> A2[Resume Adapter]
-    A1 --> IR[Identity Resolver]
-    A2 --> IR
-    IR --> ME[Merge Engine]
-    ME --> PT[Provenance Tracker]
-    PT --> CS[Confidence Scorer]
-    CS --> AT[Audit Trail]
-    AT --> QR[Quality Report]
-    QR --> CC[Config Compiler]
-    CC --> PE[Projection Engine]
-    PE --> PV[Validation Engine]
-    PV --> OUT[Output JSON]
+flowchart TB
+    subgraph inputs [Inputs]
+        CSV["Recruiter CSV"]
+        PDF["Resume PDF"]
+        ConfigJSON["Runtime Config JSON"]
+    end
+
+    subgraph configPath [Config Path - runs first]
+        ConfigCompiler["ConfigCompiler"]
+        ConfigValidator["ConfigValidator"]
+        ProjectionPlan["ProjectionPlan"]
+        ConfigJSON --> ConfigCompiler --> ConfigValidator --> ProjectionPlan
+    end
+
+    subgraph adapters [Adapters with inline normalization]
+        CSVAdapter["CSVAdapter"]
+        ResumeAdapter["ResumeAdapter"]
+        CSV --> CSVAdapter
+        PDF --> ResumeAdapter
+    end
+
+    subgraph normalizers [Normalizers used at extract and merge]
+        NEmail["email"]
+        NPhone["phone E164"]
+        NLoc["location"]
+        NSkills["skills canonical"]
+    end
+
+    CSVAdapter --> NEmail & NPhone & NLoc
+    ResumeAdapter --> NEmail & NPhone & NLoc
+
+    subgraph identity [Identity Resolution]
+        IdentityResolver["IdentityResolver"]
+    end
+
+    CSVAdapter --> IdentityResolver
+    ResumeAdapter --> IdentityResolver
+
+    subgraph merge [Merge and Conflict Resolution]
+        MergeEngine["MergeEngine"]
+        ConflictResolver["ConflictResolver"]
+        MergeEngine --> ConflictResolver
+        MergeEngine --> NSkills & NLoc
+    end
+
+    CSVAdapter --> MergeEngine
+    ResumeAdapter --> MergeEngine
+    IdentityResolver -->|"candidate_id identity"| MergeEngine
+
+    Canonical["Canonical Record"]
+
+    MergeEngine --> Canonical
+
+    subgraph enrichment [Enrichment Engines - sequential on canonical]
+        NormReport["NormalizationReport merge"]
+        Provenance["ProvenanceTracker"]
+        Confidence["ConfidenceScorer"]
+        Audit["AuditTrail"]
+        Quality["QualityReport"]
+        NormReport --> Provenance --> Confidence --> Audit --> Quality
+    end
+
+    Canonical --> NormReport
+    Quality --> SchemaVal["validate_canonical"]
+
+    subgraph projection [Projection and Validation]
+        ProjectionEngine["ProjectionEngine"]
+        ProjectionValidator["ProjectionValidator"]
+        SchemaVal --> ProjectionEngine
+        ProjectionPlan --> ProjectionEngine
+        ProjectionPlan --> ProjectionValidator
+        ProjectionEngine --> ProjectionValidator
+    end
+
+    subgraph output [Output]
+        ProfileJSON["profile.json"]
+        CanonicalJSON["canonical.json optional"]
+        OutputGen["OutputGenerator"]
+    end
+
+    ProjectionValidator --> ProfileJSON
+    SchemaVal --> CanonicalJSON
+    ProfileJSON --> OutputGen
 ```
+
+See [docs/architecture.md](docs/architecture.md) for the compact one-page diagram, sequence diagram, component glossary, and implementation notes.
 
 ## Pipeline
 
-1. **Adapters** — Extract structured (CSV) and unstructured (PDF) candidate data
-2. **Identity Resolution** — Score whether records belong to the same candidate
-3. **Normalization** — Email, phone (E.164), skills, location
-4. **Merge & Resolution** — Deterministic field-level merge with conflict tracking
-5. **Provenance** — Trace every field to its source(s) and resolution policy
-6. **Confidence Engine** — Deterministic per-field and overall confidence
-7. **Audit Trail** — Detailed resolution metadata per field
-8. **Quality Report** — Completeness, consistency, and trust scores
-9. **Projection Engine** — Map canonical record to downstream schema via config
-10. **Validation Engine** — Required-field checks with warnings and errors
+Execution order in `CandidatePipeline.run` (`app/services/pipeline.py`):
 
-The **canonical record remains immutable** after enrichment. Projection configs only affect projected outputs.
+1. **Config Compiler** — Load and validate runtime config JSON; compile into `ProjectionPlan` (runs before any data extraction)
+2. **Adapters** — Extract structured (CSV) and unstructured (PDF) candidate data; normalize email, phone, and location inline
+3. **Identity Resolution** — Score whether records belong to the same candidate; generate `candidate_id`
+4. **Merge & Conflict Resolution** — `MergeEngine` merges fields via `ConflictResolver`; skills and location normalized at merge time
+5. **Normalization Report** — Merge per-adapter normalization reports onto the canonical record
+6. **Provenance** — Trace every field to its source(s), method, and resolution policy
+7. **Confidence Scorer** — Deterministic per-field and overall confidence
+8. **Audit Trail** — Detailed resolution metadata per field in `_audit`
+9. **Quality Report** — Completeness, consistency, and trust scores
+10. **Canonical Schema Validation** — Pydantic `Candidate` model check
+11. **Projection Engine** — Map canonical record to downstream schema via config
+12. **Projection Validator** — Required-field checks, missing-value strategy, identity warnings
+13. **Output Generator** — Write projected and optional canonical JSON files
+
+Normalization runs in three tiers: **adapter extract** (email, phone, location), **merge** (skills, location re-parse), and **projection** (optional per-field normalizers). Projection configs only affect projected outputs, not the canonical merge logic.
 
 ## Merge Policy Table
 
